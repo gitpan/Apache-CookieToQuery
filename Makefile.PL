@@ -5,5 +5,8 @@ WriteMakefile(
     NAME         => 'Apache::CookieToQuery',
     VERSION_FROM => 'lib/Apache/CookieToQuery.pm', # finds $VERSION
     AUTHOR       => 'Alex Pavlovic (alex-1@telus.net)',
-    ABSTRACT     => 'Rewrite requested uri by adding cookie information'
+    ABSTRACT     => 'Rewrite requested uri by adding cookie information',
+    PREREQ_PM   => {
+	'Apache::Cookie'	=> '0', 
+    }
 );
