@@ -1,0 +1,7 @@
+LICENSE
+Changes
+Makefile.PL
+README
+lib/Apache/CookieToQuery.pm
+t/01_ini.t
+MANIFEST
