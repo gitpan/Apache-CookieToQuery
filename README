@@ -6,21 +6,28 @@ SYNOPSIS
       In httpd.conf or similiar
  
       <Location /YourLocation>
-            PerlAddVar IncludeCookie SiteID
-            PerlAddVar IncludeCookie SessionID
-            PerlAddVar IncludeCookie PageId
-            PerlAddVar CookieAlias WSID:SiteId
-            PerlAddVar CookieAlias SID:SessionId
-            PerlAddVar CookieAlias PID:PageId
+            PerlAddVar IncludeCookie WSID
+            PerlAddVar IncludeCookie SID
+            PerlAddVar IncludeCookie QID
+            PerlAddVar CookieAlias WSID:WebSiteId
+            PerlAddVar CookieAlias QID:QueryId
             PerlFixupHandler Apache::CookieToQuery  
       </Location>
+
+      Requests for http://yourhost/YourLocation?extra_params=12345
+
+      Will now become rewritten so they look similiar to:
+
+      http://yourhost/YourLocation?WebSiteId=<cookie WSID>;SID=<cookie SID>;QueryId=<cookie QID>;extra_params=12345
+
+      Where <cookie WSID> for example is the value of cookie named WSID
 
 DESCRIPTION
      This module will aid in adding cookie information to your query strings
      so that cgi scripts or handlers underneath can have immidate benefit
 
      It requires mod_perl + Apache web server with PERL_FIXUP callback hook enabled
-     for more information refer on callback hooks refer to: 
+     for more information on callback hooks refer to: 
      http://perl.apache.org/docs/1.0/guide/install.html#Callback_Hooks
 
      IncludeCookie specifies cookie names that will be added, if none are specified
@@ -32,6 +39,9 @@ DESCRIPTION
 
      Please note that in the current implementation cookies always take precedence 
      over query string paramaters 
+
+     This package should always be installed as PerlFixupHandler so that it can execute before
+     standard PerlResponseHandler is called
 
 BUGS
      If you find any, please let the author know
@@ -60,11 +70,6 @@ PUBLIC METHODS
 
      Usage     : handler ( $apache ) 
      Purpose   : rewrites the query string of the original request
-     Returns   : nothing for now
+     Returns   : Server constant OK
      Argument  : apache instance
-     Throws    : nothing for now
-     Comments  : 
-               : 
-
-    See Also :
 

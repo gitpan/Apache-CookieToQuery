@@ -2,24 +2,17 @@ package Apache::CookieToQuery;
 use strict;
 
 BEGIN {
-	use Exporter ();
-	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 1.03;
-	@ISA         = qw (Exporter);
-	#Give a hoot don't pollute, do not export more than needed by default
-	@EXPORT      = qw ();
-	@EXPORT_OK   = qw ();
-	%EXPORT_TAGS = ();
+	use vars qw ( $VERSION @COOKIE_NAMES %COOKIE_ALIASES );
+	$VERSION     = 1.04;
 }
 
 use Apache;
+use Apache::Constants qw( OK );
 use CGI qw();
 use Apache::Cookie;
 use constant CONFIG_COOKIE_INCLUDE => q{IncludeCookie};
 use constant CONFIG_COOKIE_ALIAS => q{CookieAlias};
 use constant CONFIG_ALIAS_SEP => q{:};
-
-our ( @COOKIE_NAMES, %COOKIE_ALIASES );
 
 ########################################### main pod documentation begin ##
 
@@ -32,14 +25,21 @@ Apache::CookieToQuery - Rewrite query string by adding cookie information
   In httpd.conf or similiar
  
   <Location /YourLocation>
-	PerlAddVar IncludeCookie SiteID
-	PerlAddVar IncludeCookie SessionID
-	PerlAddVar IncludeCookie PageId
-	PerlAddVar CookieAlias WSID:SiteId
-	PerlAddVar CookieAlias SID:SessionId
-	PerlAddVar CookieAlias PID:PageId
+	PerlAddVar IncludeCookie WSID
+	PerlAddVar IncludeCookie SID
+	PerlAddVar IncludeCookie QID
+	PerlAddVar CookieAlias WSID:WebSiteId
+	PerlAddVar CookieAlias QID:QueryId
 	PerlFixupHandler Apache::CookieToQuery	
   </Location>
+
+  Requests for http://yourhost/YourLocation?extra_params=12345
+
+  Will now become rewritten so they look similiar to:
+
+  http://yourhost/YourLocation?WebSiteId=<cookie WSID>;SID=<cookie SID>;QueryId=<cookie QID>;extra_params=12345
+
+  Where <cookie WSID> for example is the value of cookie named WSID
 
 =head1 DESCRIPTION
 
@@ -47,7 +47,7 @@ Apache::CookieToQuery - Rewrite query string by adding cookie information
  so that cgi scripts or handlers underneath can have immidate benefit
 
  It requires mod_perl + Apache web server with PERL_FIXUP callback hook enabled
- for more information refer on callback hooks refer to: 
+ for more information on callback hooks refer to: 
  http://perl.apache.org/docs/1.0/guide/install.html#Callback_Hooks
 
  IncludeCookie specifies cookie names that will be added, if none are specified
@@ -60,6 +60,8 @@ Apache::CookieToQuery - Rewrite query string by adding cookie information
  Please note that in the current implementation cookies always take precedence 
  over query string paramaters 
 
+ This package should always be installed as PerlFixupHandler so that it can execute before
+ standard PerlResponseHandler is called
 
 =head1 BUGS
 
@@ -100,13 +102,8 @@ These are how you should interact with this module.
 
  Usage     : handler ( $apache ) 
  Purpose   : rewrites the query string of the original request
- Returns   : nothing for now
+ Returns   : Server constant OK
  Argument  : apache instance
- Throws    : nothing for now
- Comments  : 
-           : 
-
-See Also   : 
 
 =cut
 
@@ -116,13 +113,14 @@ sub handler {
 	my $apache = shift;
 	my $cgi = CGI->new ( { $apache->args } );
 	my $cookies = Apache::Cookie->new( $apache )->fetch;
-        %COOKIE_ALIASES = split CONFIG_ALIAS_SEP, join CONFIG_ALIAS_SEP, $apache->dir_config ( CONFIG_COOKIE_ALIAS ) unless %COOKIE_ALIASES;
-	@COOKIE_NAMES = $apache->dir_config ( CONFIG_COOKIE_INCLUDE ) unless @COOKIE_NAMES;
+        %COOKIE_ALIASES = split CONFIG_ALIAS_SEP, join CONFIG_ALIAS_SEP, $apache->dir_config->get ( CONFIG_COOKIE_ALIAS ) unless %COOKIE_ALIASES;
+	@COOKIE_NAMES = $apache->dir_config->get ( CONFIG_COOKIE_INCLUDE ) unless @COOKIE_NAMES;
 	my $cookie_names = @COOKIE_NAMES ? 
 		\@COOKIE_NAMES : 
 			[ keys %$cookies ];
 	$cookies->{$_} and $cgi->param ( ( $COOKIE_ALIASES{$_} or $_ ), $cookies->{$_}->value ) for @$cookie_names;
 	$apache->args ( $cgi->query_string );
+	return OK;
 }
 
 1; #this line is important and will help the module return a true value
