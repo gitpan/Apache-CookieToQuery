@@ -4,7 +4,7 @@ use strict;
 BEGIN {
 	use Exporter ();
 	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 1.00;
+	$VERSION     = 1.02;
 	@ISA         = qw (Exporter);
 	#Give a hoot don't pollute, do not export more than needed by default
 	@EXPORT      = qw ();
@@ -121,7 +121,7 @@ sub handler {
 	my $cookie_names = @COOKIE_NAMES ? 
 		\@COOKIE_NAMES : 
 			[ keys %$cookies ];
-	$cgi->param ( ( $COOKIE_ALIASES{$_} or $_ ), $cookies->{$_}->value ) for @$cookie_names;
+	$cookies->{$_} and $cgi->param ( ( $COOKIE_ALIASES{$_} or $_ ), $cookies->{$_}->value ) for @$cookie_names;
 	$apache->args ( $cgi->query_string );
 }
 

@@ -1,5 +1,70 @@
-pod2text lib/Apache/CookieToQuery.pm > README
+NAME
+    Apache::CookieToQuery - Rewrite query string by adding cookie
+    information
 
-If this is still here it means the programmer was too lazy to create the readme file.
+SYNOPSIS
+      In httpd.conf or similiar
+ 
+      <Location /YourLocation>
+            PerlAddVar IncludeCookie SiteID
+            PerlAddVar IncludeCookie SessionID
+            PerlAddVar IncludeCookie PageId
+            PerlAddVar CookieAlias WSID:SiteId
+            PerlAddVar CookieAlias SID:SessionId
+            PerlAddVar CookieAlias PID:PageId
+            PerlFixupHandler Apache::CookieToQuery  
+      </Location>
 
-You can create it now by using the command shown above from this directory.
+DESCRIPTION
+     This module will aid in adding cookie information to your query strings
+     so that cgi scripts or handlers underneath can have immidate benefit
+
+     It requires mod_perl + Apache web server with PERL_FIXUP callback hook enabled
+     for more information refer on callback hooks refer to: 
+     http://perl.apache.org/docs/1.0/guide/install.html#Callback_Hooks
+
+     IncludeCookie specifies cookie names that will be added, if none are specified
+     any cookie name is taken into consideration
+
+     CookieAlias specifies cookie name to look for and cookie name to alias it with 
+     when query string is rewritten, if alias for a cookie name does not exist, 
+     original cookie name will be used 
+
+     Please note that in the current implementation cookies always take precedence 
+     over query string paramaters 
+
+BUGS
+     If you find any, please let the author know
+
+AUTHOR
+            Alex Pavlovic
+            CPAN ID: ALEXP
+            alex-1@telus.net
+        
+COPYRIGHT
+    Copyright (c) 2002 Alex Pavlovic. All rights reserved. This program is
+    free software; you can redistribute it and/or modify it under the same
+    terms as Perl itself.
+
+    The full text of the license can be found in the LICENSE file included
+    with this module.
+
+SEE ALSO
+    perl(1).
+
+PUBLIC METHODS
+    Each public function/method is described here. These are how you should
+    interact with this module.
+
+  handler
+
+     Usage     : handler ( $apache ) 
+     Purpose   : rewrites the query string of the original request
+     Returns   : nothing for now
+     Argument  : apache instance
+     Throws    : nothing for now
+     Comments  : 
+               : 
+
+    See Also :
+
