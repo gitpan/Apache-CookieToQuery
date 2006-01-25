@@ -5,3 +5,4 @@ README
 lib/Apache/CookieToQuery.pm
 t/01_ini.t
 MANIFEST
+META.yml                                 Module meta-data (added by MakeMaker)

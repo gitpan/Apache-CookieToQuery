@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME         => 'Apache::CookieToQuery',
     VERSION_FROM => 'lib/Apache/CookieToQuery.pm', # finds $VERSION
-    AUTHOR       => 'Alex Pavlovic (alex-1@telus.net)',
+    AUTHOR       => 'Alex Pavlovic (alex.pavlovic@taskforce-1.com)',
     ABSTRACT     => 'Rewrite requested uri by adding cookie information',
     PREREQ_PM   => {
 	'Apache::Cookie'	=> '0', 
